@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TelcoSense | Customer Churn Prediction System </title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='churn_styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='churn_dashboard.js') }}" defer></script>
+</head>
+<body>
+
+<div class="app">
+    <aside class="sidebar">
+        <h2>Telco<span>Sense</span></h2>
+     
+        <a class="active" href="#overview">Main Dashboard</a>
+        <a href="#prediction">Predict Churn</a>
+        <a href="#analytics">Analytics</a>
+
+       
+    </aside>
+
+    <main>
+       
+
+        <section id="overview">
+            <div class="page-heading">
+                <div>
+                         <h1>Customer Churn Prediction systen</h1>
+                    <p>Understand customer behavior and predict potential churn.</p>
+                </div>
+                <a href="#prediction" class="button">+ Predict Customer</a>
+            </div>
+
+            <div class="stats">
+                <article>
+                    <span>Total Customers</span>
+                    <h2 id="totalCustomers">7,043</h2>
+                    <small>Historical customer records in dataset</small>
+                </article>
+                <article>
+                    <span>Customer Churn Rate</span>
+                    <h2 id="churnRate">26.5%</h2>
+                    <small>Customer who left</small>
+                </article>
+                <article>
+                    <span>High-Risk Customers</span>
+                    <h2 id="highRiskCustomers">—</h2>
+                    <small>Customer likely to churn( leave)</small>
+                </article>
+                <article>
+                    <span>Model Recall</span>
+                    <h2 id="modelRecall">—</h2>
+                    <small>Churn detection rate</small>
+                </article>
+            </div>
+        </section>
+
+        <section id="analytics" class="charts">
+            <article class="panel">
+                <h3>Customer Distribution</h3>
+               
+                <div class="donut-wrap">
+                    <canvas id="churnDistributionChart"></canvas>
+                </div>
+                <div class="legend">
+                    <span>● Stayed <strong id="stayedPercentage">73.5%</strong></span>
+                    <span>● Churned <strong id="churnedPercentage">26.5%</strong></span>
+                </div>
+            </article>
+            <article class="panel">
+                <h3>Churn by Contract</h3>
+                <p>Compare customer retention</p>
+                <canvas id="contractChurnChart"></canvas>
+            </article>
+        </section>
+
+       
+<section id="prediction" class="panel prediction">
+    <h2>Predict Customer Churn</h2>
+    <p>Enter customer details to estimate churn probability.</p>
+
+    
+<form id="predictionForm">
+    <div class="form-grid">
+
+        <label>Gender
+            <select name="gender" required>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+            </select>
+        </label>
+
+        <label>Senior Citizen
+            <select name="SeniorCitizen" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </label>
+
+        <label>Married / Has Partner?
+            <select name="Partner" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </label>
+
+        <label>Has Dependents?
+            <select name="Dependents" required>
+                <option value="No">No</option>
+                <option value="Yes">Yes</option>
+            </select>
+        </label>
+
+        <label>Months with Company
+            <input name="tenure" type="number"
+                   min="0" max="72" value="12" required>
+        </label>
+
+        <label>Phone Service
+            <select name="PhoneService" required>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+        </label>
+
+        <label>Internet / Connection Type
+            <select name="InternetService" required>
+                <option value="DSL">Recharge</option>
+                <option value="Fiber optic">Broadband</option>
+                <option value="No">No Internet</option>
+            </select>
+        </label>
+
+        <label>Plan Duration
+            <select name="Contract" id="contractType" required>
+                <option value="Month-to-month">Monthly Plan</option>
+                <option value="One year">1-Year Plan</option>
+                <option value="Two year">2-Year Plan</option>
+            </select>
+        </label>
+
+        <label>Online Billing
+            <select name="PaperlessBilling" required>
+                <option value="Yes" selected>Yes</option>
+                <option value="No">No</option>
+            </select>
+        </label>
+
+        <label>Payment Type
+            <select name="PaymentMethod" required>
+                <option value="Electronic check">UPI / Electronic Payment</option>
+                <option value="Bank transfer (automatic)">Bank Transfer</option>
+                <option value="Credit card (automatic)">Credit Card</option>
+            </select>
+        </label>
+
+        <label>Monthly Bill (₹)
+            <select name="MonthlyCharges" id="monthlyCharges" required>
+                <option value="349">Under ₹499 </option>
+                <option value="699">₹499 – ₹799 </option>
+                <option value="999">Above ₹800 — ₹999</option>
+                <option value="3599">Premium — ₹3,599</option>
+            </select>
+        </label>
+
+        <label>Total Bill Paid (₹)
+            <input name="TotalCharges" id="totalCharges"
+                   type="number" min="0" step="0.01"
+                   value="4188" required>
+        </label>
+
+    </div>
+
+    <div class="form-actions">
+        <span>Predictions are estimates, not guarantees.</span>
+        <button type="reset" class="secondary">Reset</button>
+        <button type="submit" id="predictButton" class="button">
+            Predict Churn Risk →
+        </button>
+    </div>
+</form>
+
+
+    <div id="predictionResult" class="result" hidden aria-live="polite">
+        <div>
+            <small>CHURN RISK</small>
+            <h2 id="resultStatus">—</h2>
+            <p id="resultMessage"></p>
+        </div>
+
+        <strong id="riskPercentage">—%</strong>
+
+        <div class="risk-track">
+            <div id="riskBar"></div>
+        </div>
+
+        <p id="retentionRecommendation"></p>
+    </div>
+</section>
+
+
+       
+
+         </main>
+</div>
+
+</body>
+</html>
